@@ -26,6 +26,7 @@
 #
 define bind::record (
   $zone,
+  $zone_dynamic     = false,
   $hash_data,
   $record_type,
   $ensure           = present,
@@ -56,12 +57,27 @@ define bind::record (
   }else{
     $record_content = template('bind/default-record.erb')
   }
-
-  concat::fragment {"${zone}.${record_type}.${name}":
-    ensure  => $ensure,
-    target  => "${bind::params::pri_directory}/${zone}.conf",
-    content => $record_content,
-    notify  => Service['bind9'],
+  
+  if $zone_dynamic {
+    file_line { "${zone}.${record_type}.${name}":
+      path   => "${bind::params::dynamic_directory}/${zone}.conf",
+      line   => template('bind/default-record.erb'),
+      notify => Service['bind9'], 
+    }
+  } else {
+    concat::fragment {"${zone}.${record_type}.${name}":
+      ensure  => $ensure,
+      target  => "${bind::params::pri_directory}/${zone}.conf",
+      content => $record_content,
+      notify  => Service['bind9'],
+    }
   }
-
+ 
+  # update serial number 
+  exec { "updateSerial-${zone}.${record_type}.${name}":
+    command => "/bin/sed -i \"s/[[:digit:]]\+\s\+; serial/$(/bin/date '+%s') ; serial/\" ${bind::params::dynamic_directory}/${zone}.conf",
+    refreshonly => true,
+    subscribe => File_line[ "${zone}.${record_type}.${name}" ],
+    notify => Service['bind9'],
+  }
 }

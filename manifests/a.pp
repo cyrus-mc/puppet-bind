@@ -12,6 +12,7 @@
 #
 define bind::a(
   $zone,
+  $zone_dynamic     = false,
   $hash_data,
   $ensure           = present,
   $zone_arpa        = undef,
@@ -40,6 +41,7 @@ define bind::a(
   bind::record {$name:
     ensure           => $ensure,
     zone             => $zone,
+    zone_dynamic     => $zone_dynamic,
     hash_data        => $hash_data,
     record_type      => 'A',
     content          => $content,
@@ -50,6 +52,7 @@ define bind::a(
     bind::record {"PTR ${name}":
       ensure           => $ensure,
       zone             => $zone_arpa,
+      zone_dynamic     => $zone_dynamic,
       record_type      => 'PTR',
       ptr_zone         => $zone,
       hash_data        => $hash_data,
