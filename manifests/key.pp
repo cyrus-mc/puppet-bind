@@ -29,7 +29,7 @@ define bind::key(
 
   file {"${bind::params::keys_directory}/${name}.conf":
     ensure  => $ensure,
-    mode    => '0600',
+    mode    => '0640',
     owner   => $bind::params::bind_user,
     group   => $bind::params::bind_group,
     content => template("${module_name}/dnskey.conf.erb"),

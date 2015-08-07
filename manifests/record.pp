@@ -26,9 +26,9 @@
 #
 define bind::record (
   $zone,
-  $zone_dynamic     = false,
   $hash_data,
   $record_type,
+  $zone_dynamic     = false,
   $ensure           = present,
   $content          = undef,
   $content_template = undef,
@@ -43,6 +43,7 @@ define bind::record (
   validate_string($record_type)
   validate_string($ptr_zone)
   validate_hash($hash_data)
+  validate_bool($zone_dynamic)
 
   if ($content_template and $content) {
     fail '$content and $content_template are mutually exclusive'
@@ -62,22 +63,22 @@ define bind::record (
     file_line { "${zone}.${record_type}.${name}":
       path   => "${bind::params::dynamic_directory}/${zone}.conf",
       line   => template('bind/default-record.erb'),
-      notify => Service['bind9'], 
+      notify => Service['bind9'],
     }
   } else {
     concat::fragment {"${zone}.${record_type}.${name}":
       ensure  => $ensure,
       target  => "${bind::params::pri_directory}/${zone}.conf",
       content => $record_content,
-      notify  => Service['bind9'],
+      notify  => Service [ 'bind9' ],
     }
   }
- 
+
   # update serial number 
   exec { "updateSerial-${zone}.${record_type}.${name}":
-    command => "/bin/sed -i \"s/[[:digit:]]\+\s\+; serial/$(/bin/date '+%s') ; serial/\" ${bind::params::dynamic_directory}/${zone}.conf",
+    command     => "/bin/sed -i \"s/[[:digit:]]\+\s\+; serial/$(/bin/date '+%s') ; serial/\" ${bind::params::dynamic_directory}/${zone}.conf",
     refreshonly => true,
-    subscribe => File_line[ "${zone}.${record_type}.${name}" ],
-    notify => Service['bind9'],
+    subscribe   => File_line[ "${zone}.${record_type}.${name}" ],
+    notify      => Service [ 'bind9' ],
   }
 }

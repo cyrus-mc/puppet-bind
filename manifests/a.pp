@@ -12,8 +12,8 @@
 #
 define bind::a(
   $zone,
-  $zone_dynamic     = false,
   $hash_data,
+  $zone_dynamic     = false,
   $ensure           = present,
   $zone_arpa        = undef,
   $ptr              = true,
@@ -29,6 +29,7 @@ define bind::a(
   validate_string($zone_arpa)
   validate_hash($hash_data)
   validate_bool($ptr)
+  validate_bool($zone_dynamic)
 
   if ($ptr and !$zone_arpa) {
     fail 'You need zone_arpa if you want the PTR!'

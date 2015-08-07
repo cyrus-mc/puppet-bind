@@ -7,7 +7,6 @@
 #  *$transfer_source*: IPv4 address. Source IP to bind to when requesting a transfer (slave only)
 #  *$zone_ttl*: Time period. Time to live for your zonefile (master only)
 #  *$zone_contact*: Valid contact record (master only)
-#  *$zone_serial*: Integer. Zone serial (master only)
 #  *$zone_refresh*: Time period. Time between each slave refresh (master only)
 #  *$zone_retry*: Time period. Time between each slave retry (master only)
 #  *$zone_expiracy*: Time period. Slave expiracy time (master only)
@@ -26,7 +25,6 @@ define bind::zone (
   $zone_type       = 'master',
   $zone_ttl        = undef,
   $zone_contact    = undef,
-  $zone_serial     = undef,
   $zone_refresh    = '3h',
   $zone_retry      = '1h',
   $zone_expiracy   = '1w',
@@ -37,6 +35,7 @@ define bind::zone (
   $zone_origin     = undef,
   $zone_notify     = undef,
   $is_slave        = false,
+  $is_reverse      = false,
 ) {
 
   include ::bind::params
@@ -52,11 +51,11 @@ define bind::zone (
   validate_string($zone_type)
   validate_string($zone_ttl)
   validate_string($zone_contact)
-  validate_string($zone_serial)
   validate_string($zone_refresh)
   validate_string($zone_retry)
   validate_string($zone_expiracy)
   validate_array($zone_ns)
+  validate_bool($is_reverse)
 
   validate_string($zone_origin)
 
@@ -103,7 +102,6 @@ define bind::zone (
         'master': {
           validate_re($zone_contact, '^\S+$', "Wrong contact value for ${name}!")
           validate_slength($zone_ns, 255, 3)
-          validate_re($zone_serial, '^\d+$', "Wrong serial value for ${name}!")
           validate_re($zone_ttl, '^\d+$', "Wrong ttl value for ${name}!")
 
           $conf_file = $is_dynamic? {

@@ -19,7 +19,6 @@
 #     ensure       => present,
 #     zone_contact => "contact.domain.ltd",
 #     zone_ns      => $fqdn,
-#     zone_serial  => '2010110804',
 #     zone_ttl     => '604800',
 #   }
 #
