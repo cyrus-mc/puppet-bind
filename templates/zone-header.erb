@@ -9,12 +9,18 @@ $TTL <%= @zone_ttl %>
       				<%= @zone_retry %>    ; retry
       				<%= @zone_expiracy %> ; expiracy
       				<%= @zone_ttl %> )    ; TTL
-<% if ! @is_reverse
-     @zone_ns.each do |ns| -
-  raise(Puppet::ParseError, "Wrong ns value: '#{ns}'") unless ( ns =~ Regexp.compile('^\S+$'))
+<% @zone_ns.each do |name,ip| -
+  raise(Puppet::ParseError, "Wrong ns value: '#{name}'") unless ( name =~ Regexp.compile('^\S+$'))
 -%>
-		IN 	NS 	<%= ns %>.
+		IN 	NS 	<%= name %>.
+<% end -%>
+
+<% if !@is_reverse
+     @zone_ns.each do |name,ip|
+-%>
+<%= name.split('.')[0] %>		IN	A	<%= ip %>
 <%
      end
-   end -%>
+   end
+-%>
 

@@ -54,7 +54,7 @@ define bind::zone (
   validate_string($zone_refresh)
   validate_string($zone_retry)
   validate_string($zone_expiracy)
-  validate_array($zone_ns)
+  validate_hash($zone_ns)
   validate_bool($is_reverse)
 
   validate_string($zone_origin)
@@ -101,7 +101,7 @@ define bind::zone (
       case $int_zone_type {
         'master': {
           validate_re($zone_contact, '^\S+$', "Wrong contact value for ${name}!")
-          validate_slength($zone_ns, 255, 3)
+          #validate_slength($zone_ns, 255, 3)
           validate_re($zone_ttl, '^\d+$', "Wrong ttl value for ${name}!")
 
           $conf_file = $is_dynamic? {
